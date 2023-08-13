@@ -2,7 +2,7 @@
 Serviço responsável por receber webhooks externos e distribuir entre outros projetos
 
 
-## Receivers: Facilitando o Processamento de Webhooks
+### Receivers: Facilitando o Processamento de Webhooks
 
 Os **receivers** desempenham um papel crucial no recebimento e redirecionamento de webhooks provenientes de serviços externos para sua solução. Ao utilizar esse recurso, você simplifica a integração de sistemas e permite o processamento eficiente de informações externas.
 
