@@ -1,43 +1,24 @@
-# Introduction
 
-This is a skeleton application using the Hyperf framework. This application is meant to be used as a starting place for those looking to get their feet wet with Hyperf Framework.
+## Receivers: Facilitando o Processamento de Webhooks
 
-# Requirements
+Os **receivers** desempenham um papel crucial no recebimento e redirecionamento de webhooks provenientes de serviços externos para sua solução. Ao utilizar esse recurso, você simplifica a integração de sistemas e permite o processamento eficiente de informações externas.
 
-Hyperf has some requirements for the system environment, it can only run under Linux and Mac environment, but due to the development of Docker virtualization technology, Docker for Windows can also be used as the running environment under Windows.
+### Adicionando um Novo Receiver
 
-The various versions of Dockerfile have been prepared for you in the [hyperf/hyperf-docker](https://github.com/hyperf/hyperf-docker) project, or directly based on the already built [hyperf/hyperf](https://hub.docker.com/r/hyperf/hyperf) Image to run.
+Integrar um novo **receiver** em sua aplicação é um processo simples:
 
-When you don't want to use Docker as the basis for your running environment, you need to make sure that your operating environment meets the following requirements:  
+1.  **Crie uma Rota e um Controller:** Primeiramente, crie uma rota que direcionará os webhooks recebidos para um controller específico. Isso garante que os dados sejam devidamente processados.
 
- - PHP >= 8.0
- - Any of the following network engines
-   - Swoole PHP extension >= 4.5，with `swoole.use_shortname` set to `Off` in your `php.ini`
-   - Swow PHP extension (Beta)
- - JSON PHP extension
- - Pcntl PHP extension
- - OpenSSL PHP extension （If you need to use the HTTPS）
- - PDO PHP extension （If you need to use the MySQL Client）
- - Redis PHP extension （If you need to use the Redis Client）
- - Protobuf PHP extension （If you need to use the gRPC Server or Client）
+2.  **Registre a URL do Serviço Externo:** No arquivo `config/autoload/receivers.php`, registre a URL do serviço externo do qual você espera receber webhooks. Isso permitirá que seu sistema saiba para onde direcionar os dados recebidos.
 
-# Installation using Composer
+3.  **Crie um Receiver Personalizado:** Crie uma classe que herde `App\Receiver\AbstractReceiver`.
 
-The easiest way to create a new Hyperf project is to use [Composer](https://getcomposer.org/). If you don't have it already installed, then please install as per [the documentation](https://getcomposer.org/download/).
+   -   **Preencha a Propriedade `provider`:** Na classe do seu receiver, preencha a propriedade `public string $provider` com o nome do provedor externo. Isso ajuda a identificar a origem do webhook.
 
-To create your new Hyperf project:
+### Gerenciando Webhooks com Falha
 
-```bash
-$ composer create-project hyperf/hyperf-skeleton path/to/install
-```
+1.  O webhook é registrado na base de dados com o status `false`, indicando que houve uma falha no envio.
 
-Once installed, you can run the server immediately using the command below.
+2.  A tarefa `app/Task/RetryFailedWebhookTask.php` é acionada para lidar com os webhooks que falharam. Ela tenta reenviar esses webhooks para garantir que as informações sejam processadas corretamente.
 
-```bash
-$ cd path/to/install
-$ php bin/hyperf.php start
-```
-
-This will start the cli-server on port `9501`, and bind it to all network interfaces. You can then visit the site at `http://localhost:9501/`
-
-which will bring up Hyperf default home page.
+3.  Enquanto o status do webhook permanecer como `false`, a tarefa de reenvio será agendada de acordo com a configuração do cron definida na mesma tarefa. Isso garante que os webhooks sejam reprocessados em intervalos regulares até que a transmissão bem-sucedida seja confirmada pelo sistema receptor.
