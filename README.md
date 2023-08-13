@@ -1,3 +1,6 @@
+## WB Protector
+Serviço responsável por receber webhooks externos e distribuir entre outros projetos
+
 
 ## Receivers: Facilitando o Processamento de Webhooks
 
